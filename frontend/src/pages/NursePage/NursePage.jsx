@@ -13,6 +13,9 @@ export default function NursePage() {
       gender: "Male",
       pname: "Ravi Kumar",
       pid: "P003",
+      date:"21/02/26",
+      medicines:"0/0",
+      procedure:"0/0"
     },
     {
       id: 102,
@@ -20,8 +23,12 @@ export default function NursePage() {
       gender: "Male",
       pname: "Suresh Rao",
       pid: "P005",
+      date:"12/10/25",
+      medicines:"0/0",
+      procedure:"0/0"
     },
   ];
+   console.log(rooms);
   const filteredRooms = rooms.filter(
     (room) =>
       room.pid.toLowerCase().includes(name.toLowerCase()) ||
