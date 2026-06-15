@@ -28,6 +28,7 @@ export default function Layout({
       <aside
         className={`
           fixed top-0 left-0 h-screen w-64 bg-white z-50
+          flex flex-col
           transform transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
@@ -44,15 +45,15 @@ export default function Layout({
           </div>
 
           <button
-            className="lg:hidden text-xl"
+            className="lg:hidden text-2xl"
             onClick={() => setSidebarOpen(false)}
           >
             ✕
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
+        {/* Menu */}
+        <nav className="flex-1 px-4 py-2">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.path}>
@@ -74,9 +75,9 @@ export default function Layout({
           </ul>
         </nav>
 
-        {/* Logout */}
+        {/* Logout at Bottom */}
         <div className="p-4">
-          <button className="w-full text-left text-red-500 font-medium hover:text-red-600">
+          <button className="w-full text-left px-4 py-3 rounded-lg text-red-500 font-medium hover:bg-red-50">
             Logout
           </button>
         </div>
