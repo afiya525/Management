@@ -12,9 +12,7 @@ export default function Layout() {
   ];
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
-      
-      {/* Logo Section */}
+    <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0">
       <div className="h-20 flex items-center px-6 border-b border-gray-200">
         <div className="w-8 h-8 bg-blue-600 rounded-lg"></div>
 
@@ -23,7 +21,6 @@ export default function Layout() {
         </h1>
       </div>
 
-      {/* Menu Section */}
       <nav className="flex-1 p-3">
         <ul className="space-y-2">
           {menuItems.map((item) => (
@@ -45,7 +42,6 @@ export default function Layout() {
         </ul>
       </nav>
 
-      {/* Logout Section */}
       <div className="p-4 border-t border-gray-200">
         <button className="w-full text-left text-red-500 font-medium hover:text-red-600">
           Logout
