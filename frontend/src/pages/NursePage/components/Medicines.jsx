@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-
 export default function Medicines() {
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -39,7 +38,7 @@ export default function Medicines() {
   ];
 
   const filteredMedicines = medicineMaster.filter((med) =>
-    med.name.toLowerCase().includes(search.toLowerCase())
+    med.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   function handleAddMedicine() {
@@ -49,7 +48,7 @@ export default function Medicines() {
     }
 
     const medicine = medicineMaster.find(
-      (med) => med.name === selectedMedicine
+      (med) => med.name === selectedMedicine,
     );
 
     const newPrescription = {
@@ -59,7 +58,7 @@ export default function Medicines() {
       days,
       frequency,
       notes,
-      given:false
+      given: false,
     };
 
     setPrescriptions([...prescriptions, newPrescription]);
@@ -73,115 +72,116 @@ export default function Medicines() {
   }
 
   function handleGiven(index) {
-  const updated = [...prescriptions];
+    const updated = [...prescriptions];
 
-  updated[index] = {
-    ...updated[index],
-    given: true,
-  };
+    updated[index] = {
+      ...updated[index],
+      given: true,
+    };
 
-  setPrescriptions(updated);
-}
-  
+    setPrescriptions(updated);
+  }
+
   return (
-     <div>
-    <div className="medicine-container">
-      <h3>Add Medicine</h3>
+    <div className="medicine-page">
+      {/* LEFT CARD */}
+      <div className="medicine-container">
+        <h3>Add Medicine</h3>
 
-      <label>Medicine *</label>
+        <label>Medicine *</label>
 
-      <div className="searchable-dropdown">
+        <div className="searchable-dropdown">
+          <input
+            type="text"
+            placeholder="Search medicine..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowDropdown(true);
+            }}
+            onFocus={() => setShowDropdown(true)}
+          />
+
+          {showDropdown && (
+            <div className="dropdown-menu">
+              {filteredMedicines.length > 0 ? (
+                filteredMedicines.map((med) => (
+                  <div
+                    key={med.name}
+                    className="dropdown-item"
+                    onClick={() => {
+                      setSelectedMedicine(med.name);
+                      setSearch(med.name);
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <strong>{med.name}</strong>
+                    <p>{med.scientificName}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="dropdown-item">No medicine found</div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="row">
+          <div>
+            <label>Quantity</label>
+            <input
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label>Number of Days</label>
+            <input
+              type="number"
+              value={days}
+              onChange={(e) => setDays(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <label>Frequency / Instructions</label>
         <input
           type="text"
-          placeholder="Search medicine..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setShowDropdown(true);
-          }}
-          onFocus={() => setShowDropdown(true)}
+          placeholder="e.g. 1-0-1 after food"
+          value={frequency}
+          onChange={(e) => setFrequency(e.target.value)}
         />
 
-        {showDropdown && (
-          <div className="dropdown-menu">
-            {filteredMedicines.length > 0 ? (
-              filteredMedicines.map((med) => (
-                <div
-                  key={med.name}
-                  className="dropdown-item"
-                  onClick={() => {
-                    setSelectedMedicine(med.name);
-                    setSearch(med.name);
-                    setShowDropdown(false);
-                  }}
-                >
-                  <strong>{med.name}</strong>
-                  <p>{med.scientificName}</p>
-                </div>
-              ))
-            ) : (
-              <div className="dropdown-item">
-                No medicine found
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+        <label>Additional Notes</label>
+        <input
+          type="text"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
 
-      <div className="row">
-        <div>
-          <label>Quantity</label>
-          <input
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label>Number of Days</label>
-          <input
-            type="number"
-            value={days}
-            onChange={(e) => setDays(e.target.value)}
-          />
+        <div className="button-group">
+          <button className="add-btn" onClick={handleAddMedicine}>
+            Add to Prescription
+          </button>
         </div>
       </div>
 
-      <label>Frequency / Instructions</label>
-      <input
-        type="text"
-        placeholder="e.g. 1-0-1 after food"
-        value={frequency}
-        onChange={(e) => setFrequency(e.target.value)}
-      />
+      {/* RIGHT CARD */}
+      <div className="prescription-card">
+        <h3>Current Prescriptions</h3>
 
-      <label>Additional Notes</label>
-      <input
-        type="text"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-
-      <div className="button-group">
-        <button className="add-btn" onClick={handleAddMedicine}>
-          Add to Prescription
-        </button>
-      </div>
-
-      {prescriptions.length > 0 && (
-        <div className="prescription-list">
-          <h3>Current Prescriptions</h3>
-
+        {prescriptions.length === 0 ? (
+          <p className="empty-text">No prescriptions added yet</p>
+        ) : (
           <table>
             <thead>
               <tr>
                 <th>Medicine</th>
-                <th>Scientific Name</th>
                 <th>Qty</th>
                 <th>Days</th>
-                <th>Frequency</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -191,36 +191,32 @@ export default function Medicines() {
               {prescriptions.map((item, index) => (
                 <tr key={index}>
                   <td>{item.medicine}</td>
-                  <td>{item.scientificName}</td>
                   <td>{item.quantity}</td>
                   <td>{item.days}</td>
-                  <td>{item.frequency}</td>
 
-                <td>
-                  
-  {item.given ? (
-    <span className="status-given">Given</span>
-  ) : (
-    <span className="status-pending">Pending</span>
-  )}
-</td>
-<td>
-  <button
-    className={item.given ? "given-btn done" : "given-btn"}
-    onClick={() => handleGiven(index)}
-    disabled={item.given}
-  >
-    {item.given ? "Given ✓" : "Mark Given"}
-  </button>
-</td>
+                  <td>
+                    {item.given ? (
+                      <span className="status-given">Given</span>
+                    ) : (
+                      <span className="status-pending">Pending</span>
+                    )}
+                  </td>
+
+                  <td>
+                    <button
+                      className={item.given ? "given-btn done" : "given-btn"}
+                      onClick={() => handleGiven(index)}
+                      disabled={item.given}
+                    >
+                      {item.given ? "Given ✓" : "Mark Given"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-      
+        )}
+      </div>
     </div>
-   </div>
   );
 }

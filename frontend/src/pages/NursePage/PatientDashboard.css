@@ -407,6 +407,18 @@ cursor: pointer;
 .delete-btn:hover {
 background: #b91c1c;
 }
+.btn-delete {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #b91c1c;
+}
 
 /* =========================
 TABLES
@@ -465,3 +477,56 @@ background: #f8fafc;
 .given-btn:disabled {
   opacity: 1;
 }
+
+.medicine-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.prescription-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.prescription-card h3 {
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.empty-text {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.prescription-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prescription-card th {
+  background: #f8fafc;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.prescription-card td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.prescription-card tr:hover {
+  background: #f8fafc;
+}
+
+@media (max-width: 1024px) {
+  .medicine-page {
+    grid-template-columns: 1fr;
+  }
+}
+
+

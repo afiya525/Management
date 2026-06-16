@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-
 export default function Procedure() {
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -35,7 +34,7 @@ export default function Procedure() {
   ];
 
   const filteredProcedures = procedureMaster.filter((procedure) =>
-    procedure.name.toLowerCase().includes(search.toLowerCase())
+    procedure.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   function handleAddProcedure() {
@@ -44,9 +43,7 @@ export default function Procedure() {
       return;
     }
 
-    const procedure = procedureMaster.find(
-      (p) => p.name === selectedProcedure
-    );
+    const procedure = procedureMaster.find((p) => p.name === selectedProcedure);
 
     setProcedures([...procedures, procedure]);
 
@@ -55,14 +52,14 @@ export default function Procedure() {
   }
 
   function markProcedureDone(index) {
-  const updated = [...procedures];
-  updated[index] = { ...updated[index], done: true };
-  setProcedures(updated);
-}
+    const updated = [...procedures];
+    updated[index] = { ...updated[index], done: true };
+    setProcedures(updated);
+  }
 
-function handleDelete(index) {
-  setProcedures(procedures.filter((_, i) => i !== index));
-}
+  function handleDelete(index) {
+    setProcedures(procedures.filter((_, i) => i !== index));
+  }
 
   return (
     <div className="procedure-container">
@@ -100,9 +97,7 @@ function handleDelete(index) {
                 </div>
               ))
             ) : (
-              <div className="dropdown-item">
-                No procedure found
-              </div>
+              <div className="dropdown-item">No procedure found</div>
             )}
           </div>
         )}
@@ -134,7 +129,7 @@ function handleDelete(index) {
                 <th>Procedure</th>
                 <th>Description</th>
                 <th>Status</th>
-                
+                <th>Action</th>
               </tr>
             </thead>
 
@@ -145,18 +140,25 @@ function handleDelete(index) {
                   <td>{item.description}</td>
 
                   <td>
-  {item.done ? (
-    <span className="status-given">Done</span>
-  ) : (
-    <button
-      className="given-btn"
-      onClick={() => markProcedureDone(index)}
-    >
-      Mark as Done
-    </button>
-  )}
-</td>
-                  
+                    {item.done ? (
+                      <span className="status-given">Done</span>
+                    ) : (
+                      <button
+                        className="given-btn"
+                        onClick={() => markProcedureDone(index)}
+                      >
+                        Mark as Done
+                      </button>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDelete(index)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
