@@ -33,8 +33,11 @@ export default function Procedure() {
     },
   ];
 
-  const filteredProcedures = procedureMaster.filter((procedure) =>
-    procedure.name.toLowerCase().includes(search.toLowerCase())
+  const filteredProcedures = procedureMaster.filter(
+    (procedure) =>
+      procedure.name
+        .toLowerCase()
+        .includes(search.toLowerCase())
   );
 
   const handleAddProcedure = () => {
@@ -84,35 +87,37 @@ export default function Procedure() {
           Add Procedure
         </h2>
 
-        <div className="space-y-4">
-          <div className="relative">
-            <label className="block text-sm font-medium mb-2">
-              Procedure *
-            </label>
+        <div className="relative">
+          <label className="block text-sm font-medium mb-2">
+            Procedure *
+          </label>
 
-            <input
-              type="text"
-              placeholder="Search procedure..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              className="w-full border rounded-xl p-3"
-            />
+          <input
+            type="text"
+            placeholder="Search procedure..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowDropdown(true);
+            }}
+            onFocus={() => setShowDropdown(true)}
+            className="w-full border rounded-xl p-3"
+          />
 
-            {showDropdown && (
-              <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                {filteredProcedures.length > 0 ? (
-                  filteredProcedures.map((procedure) => (
+          {showDropdown && (
+            <div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+              {filteredProcedures.length > 0 ? (
+                filteredProcedures.map(
+                  (procedure) => (
                     <div
                       key={procedure.name}
                       onClick={() => {
                         setSelectedProcedure(
                           procedure.name
                         );
-                        setSearch(procedure.name);
+                        setSearch(
+                          procedure.name
+                        );
                         setShowDropdown(false);
                       }}
                       className="p-3 cursor-pointer hover:bg-gray-100"
@@ -122,41 +127,31 @@ export default function Procedure() {
                       </p>
 
                       <p className="text-sm text-gray-500">
-                        {procedure.description}
+                        {
+                          procedure.description
+                        }
                       </p>
                     </div>
-                  ))
-                ) : (
-                  <div className="p-3 text-gray-500">
-                    No procedure found
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={handleAddProcedure}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium"
-            >
-              Add Procedure
-            </button>
-
-            <button
-              onClick={() => {
-                setSearch("");
-                setSelectedProcedure("");
-              }}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium"
-            >
-              Cancel
-            </button>
-          </div>
+                  )
+                )
+              ) : (
+                <div className="p-3 text-gray-500">
+                  No procedure found
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
+        <button
+          onClick={handleAddProcedure}
+          className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium"
+        >
+          Add Procedure
+        </button>
       </div>
 
-      {/* Procedure List */}
+      {/* Current Procedures */}
       <div className="bg-white rounded-2xl shadow-sm p-6">
         <h2 className="text-xl font-semibold mb-6">
           Current Procedures
@@ -171,64 +166,87 @@ export default function Procedure() {
             <table className="w-full">
               <thead>
                 <tr className="border-b text-left">
-                  <th className="py-3">Procedure</th>
-                  <th className="py-3">Description</th>
-                  <th className="py-3">Status</th>
-                  <th className="py-3">Action</th>
+                  <th className="py-3">
+                    Procedure
+                  </th>
+
+                  <th className="py-3">
+                    Description
+                  </th>
+
+                  <th className="py-3">
+                    Status
+                  </th>
+
+                  <th className="py-3">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
-                {procedures.map((item, index) => (
-                  <tr
-                    key={index}
-                    className="border-b"
-                  >
-                    <td className="py-4 font-medium">
-                      {item.name}
-                    </td>
+                {procedures.map(
+                  (item, index) => (
+                    <tr
+                      key={index}
+                      className="border-b"
+                    >
+                      <td className="py-4 font-medium">
+                        {item.name}
+                      </td>
 
-                    <td className="text-gray-600">
-                      {item.description}
-                    </td>
+                      <td className="text-gray-600">
+                        {
+                          item.description
+                        }
+                      </td>
 
-                    <td>
-                      {item.done ? (
-                        <span className="px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm">
-                          Done
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
-                          Pending
-                        </span>
-                      )}
-                    </td>
-
-                    <td>
-                      <div className="flex gap-2">
-                        {!item.done && (
-                          <button
-                            onClick={() =>
-                              markProcedureDone(index)
-                            }
-                            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
-                          >
-                            Mark Done
-                          </button>
+                      <td>
+                        {item.done ? (
+                          <span className="px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm">
+                            Done
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
+                            Pending
+                          </span>
                         )}
+                      </td>
 
-                        <button
-                          onClick={() =>
-                            handleDelete(index)
-                          }
-                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      <td>
+                        {!item.done ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() =>
+                                markProcedureDone(
+                                  index
+                                )
+                              }
+                              className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
+                            >
+                              Mark Done
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                handleDelete(
+                                  index
+                                )
+                              }
+                              className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm">
+                            Completed ✓
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
           </div>
