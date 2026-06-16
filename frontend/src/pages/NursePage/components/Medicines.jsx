@@ -4,7 +4,7 @@ export default function Medicines() {
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  
   const [days, setDays] = useState("");
   const [frequency, setFrequency] = useState("");
   const [notes, setNotes] = useState("");
@@ -54,7 +54,7 @@ export default function Medicines() {
     const newPrescription = {
       medicine: medicine.name,
       scientificName: medicine.scientificName,
-      quantity,
+      
       days,
       frequency,
       notes,
@@ -65,7 +65,7 @@ export default function Medicines() {
 
     setSearch("");
     setSelectedMedicine("");
-    setQuantity(1);
+    
     setDays("");
     setFrequency("");
     setNotes("");
@@ -127,15 +127,7 @@ export default function Medicines() {
         </div>
 
         <div className="row">
-          <div>
-            <label>Quantity</label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-          </div>
+          
 
           <div>
             <label>Number of Days</label>
@@ -180,7 +172,7 @@ export default function Medicines() {
             <thead>
               <tr>
                 <th>Medicine</th>
-                <th>Qty</th>
+                
                 <th>Days</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -191,7 +183,7 @@ export default function Medicines() {
               {prescriptions.map((item, index) => (
                 <tr key={index}>
                   <td>{item.medicine}</td>
-                  <td>{item.quantity}</td>
+                  
                   <td>{item.days}</td>
 
                   <td>

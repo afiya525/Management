@@ -3,14 +3,15 @@ import { Routes, Route } from 'react-router-dom'
 import NursePage from './pages/NursePage/NursePage';
 import './App.css'
 import PatientDashboard from './pages/NursePage/PatientDashboard';
-
+import SeniorDoctor from "./pages/SeniorDoctor/SeniorDoctor"
 
 function App() {
 
   return (
-    <Routes>
+    <Routes> 
       <Route path="/" element={<NursePage />} />
-      <Route path="/patient/:pid" element={<PatientDashboard />} />
+      <Route path="/patient/:pid" element={<PatientDashboard />} /> 
+      {/*<Route path="/" element={<SeniorDoctor/>} />*/}
     </Routes>
   )
 }
