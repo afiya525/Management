@@ -7,6 +7,8 @@ import JuniorDoctor from './pages/JuniorDoctor/JuniorDoctor';
 import PatientAssessment from './pages/JuniorDoctor/PatientAssessment';
 import PharmacistPage from './pages/Pharmacist/PharmacistPage';
 import PrescriptionDispensing from './pages/Pharmacist/PrescriptionDispensing';
+import DispensingConfirmation from './pages/Pharmacist/DispensingConfirmation';
+import MedicineInventory from './components/MedicineInventory';
 import './App.css'
 function App() {
 
@@ -19,6 +21,8 @@ function App() {
       <Route path="/assessment/:pid" element={<PatientAssessment />}/>
       <Route path="/pharmacist" element={<PharmacistPage />} />
       <Route path="/pharmacist/prescriptions/:id"element={<PrescriptionDispensing />}/>
+      <Route path="/pharmacist/prescriptions/:id/success" element={<DispensingConfirmation />}/>
+      <Route path="/medicine-inventory" element={<MedicineInventory />} />
     </Routes>
   )
 }
