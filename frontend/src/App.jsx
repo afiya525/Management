@@ -16,6 +16,9 @@ import MedicineInventory from "./components/MedicineInventory";
 import SeniorDoctorDashboard from "./pages/SeniorDoctor/SeniorDoctorDashboard";
 import SeniorDoctorConsultation from "./pages/SeniorDoctor/SeniorDoctorConsultation";
 
+import BillPayment from "./components/BillComponent/BillDashboard";
+import BillDashboard from "./components/BillComponent/BillPayment";
+
 function App() {
   return (
     <Routes>
@@ -25,15 +28,9 @@ function App() {
       <Route path="/patient/:pid" element={<PatientDashboard />} />
 
       <Route path="/junior-doctor" element={<JuniorDoctor />} />
-      <Route
-        path="/assessment/:pid"
-        element={<PatientAssessment />}
-      />
+      <Route path="/assessment/:pid" element={<PatientAssessment />} />
 
-      <Route
-        path="/pharmacist"
-        element={<PharmacistPage />}
-      />
+      <Route path="/pharmacist" element={<PharmacistPage />} />
 
       <Route
         path="/pharmacist/prescriptions/:id"
@@ -45,28 +42,22 @@ function App() {
         element={<DispensingConfirmation />}
       />
 
-      <Route
-        path="/medicine-inventory"
-        element={<MedicineInventory />}
-      />
+      <Route path="/medicine-inventory" element={<MedicineInventory />} />
 
-      <Route
-        path="/senior-doctor"
-        element={<SeniorDoctorDashboard />}
-      />
+      <Route path="/senior-doctor" element={<SeniorDoctorDashboard />} />
 
       <Route
         path="/senior-dashboard/:pid"
         element={<SeniorDoctorConsultation />}
       />
 
+      <Route path="/bill-dashboard" element={<BillDashboard />} />
+
+      <Route path="/billing/:pid" element={<BillPayment />} />
+
       <Route
         path="*"
-        element={
-          <div className="p-10 text-center">
-            Page Not Found
-          </div>
-        }
+        element={<div className="p-10 text-center">Page Not Found</div>}
       />
     </Routes>
   );
