@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
+import PharmacyBill from "./PharmacyBill";
 
 export default function DispensingConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const billRef = useRef();
 
   const {
     prescriptionId = "N/A",
@@ -12,8 +15,65 @@ export default function DispensingConfirmation() {
     medicines = [],
   } = location.state || {};
 
+  const patient = {
+    name: patientName,
+    pid: prescriptionId,
+  };
+
   const handlePrintBill = () => {
-    window.print();
+    const printContents =
+      billRef.current.innerHTML;
+
+    const printWindow = window.open(
+      "",
+      "",
+      "width=1200,height=800"
+    );
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Pharmacy Bill</title>
+          <style>
+            body{
+              font-family: Arial, sans-serif;
+              padding:20px;
+            }
+
+            table{
+              width:100%;
+              border-collapse:collapse;
+            }
+
+            th,td{
+              border:1px solid #ddd;
+              padding:10px;
+              text-align:left;
+            }
+
+            th{
+              background:#f3f4f6;
+            }
+
+            .total{
+              margin-top:20px;
+              text-align:right;
+              font-size:20px;
+              font-weight:bold;
+            }
+          </style>
+        </head>
+
+        <body>
+          ${printContents}
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
   const handlePrintUpdatedBill = () => {
@@ -48,12 +108,12 @@ export default function DispensingConfirmation() {
           </h2>
 
           <p className="text-gray-600">
-            Prescription #{prescriptionId} has been
-            successfully dispensed.
+            Prescription #{prescriptionId} has
+            been successfully dispensed.
           </p>
         </div>
 
-        {/* Patient Details */}
+        {/* Medicines */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <h3 className="text-xl font-semibold mb-4">
             Dispensed Medicines
@@ -66,13 +126,17 @@ export default function DispensingConfirmation() {
             {patientName}
           </p>
 
-          {/* Desktop Table */}
+          {/* Desktop */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-gray-50">
                   <th className="text-left p-4">
                     Medicine
+                  </th>
+
+                  <th className="text-left p-4">
+                    Scientific Name
                   </th>
 
                   <th className="text-left p-4">
@@ -92,13 +156,11 @@ export default function DispensingConfirmation() {
                     className="border-b"
                   >
                     <td className="p-4">
-                      <p className="font-semibold">
-                        {item.medicine}
-                      </p>
+                      {item.medicine}
+                    </td>
 
-                      <p className="text-sm text-gray-500">
-                        {item.scientificName}
-                      </p>
+                    <td className="p-4">
+                      {item.scientificName}
                     </td>
 
                     <td className="p-4">
@@ -107,8 +169,7 @@ export default function DispensingConfirmation() {
 
                     <td className="p-4">
                       <span className="px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm">
-                        {item.status ||
-                          "Dispensed"}
+                        Dispensed
                       </span>
                     </td>
                   </tr>
@@ -117,7 +178,7 @@ export default function DispensingConfirmation() {
             </table>
           </div>
 
-          {/* Mobile Cards */}
+          {/* Mobile */}
           <div className="lg:hidden space-y-4">
             {medicines.map((item) => (
               <div
@@ -128,33 +189,30 @@ export default function DispensingConfirmation() {
                   {item.medicine}
                 </p>
 
-                <p className="text-sm text-gray-500 mb-3">
+                <p className="text-sm text-gray-500">
                   {item.scientificName}
                 </p>
 
-                <p>
-                  <strong>
-                    Dispensed Qty:
-                  </strong>{" "}
+                <p className="mt-2">
+                  <strong>Qty:</strong>{" "}
                   {item.dispensedQty}
                 </p>
 
-                <span className="inline-block mt-2 px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm">
-                  {item.status ||
-                    "Dispensed"}
+                <span className="inline-block mt-3 px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm">
+                  Dispensed
                 </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-end">
+        {/* Buttons */}
+        <div className="flex flex-col md:flex-row gap-4 justify-end">
           <button
             onClick={handlePrintBill}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium"
           >
-            Print Bill
+            Print Pharmacy Bill
           </button>
 
           <button
@@ -163,6 +221,15 @@ export default function DispensingConfirmation() {
           >
             Print Updated Bill
           </button>
+        </div>
+
+        {/* Hidden Printable Bill */}
+        <div className="hidden">
+          <PharmacyBill
+            ref={billRef}
+            patient={patient}
+            medicines={medicines}
+          />
         </div>
       </div>
     </Layout>
