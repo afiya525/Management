@@ -21,6 +21,7 @@ import BillDashboard from "./components/BillComponent/BillDashboard";
 import Admission from "./components/AdmissionComponent/Admission";
 
 import Users from "./components/Users";
+import PharmacyBill from "./pages/Pharmacist/PharmacyBill";
 
 
 function App()  {
@@ -60,6 +61,8 @@ function App()  {
       <Route path="/billing/:pid" element={<BillDashboard />} />
 
       <Route path="/admission" element={<Admission />} />
+
+      <Route path="/pharmacy-bill" element={<PharmacyBill />} />
 
       <Route path="/users" element={<Users />} />
 

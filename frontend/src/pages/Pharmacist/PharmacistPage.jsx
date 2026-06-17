@@ -85,7 +85,7 @@ export default function PharmacistPage() {
             onChange={(e) =>
               setSearchTerm(e.target.value)
             }
-            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -122,7 +122,6 @@ export default function PharmacistPage() {
                   (item) => (
                     <tr
                       key={item.id}
-                      className="border-t"
                     >
                       <td className="px-6 py-4">
                         {item.patientName}
