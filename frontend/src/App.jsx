@@ -21,7 +21,7 @@ import BillDashboard from "./components/BillComponent/BillDashboard";
 import Admission from "./components/AdmissionComponent/Admission";
 
 
-function App() {
+function App()  {
   return (
     <Routes>
       <Route path="/" element={<Landingpage />} />
