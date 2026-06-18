@@ -54,7 +54,7 @@ export default function BillDashboard() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <button
-            onClick={() => navigate("/bill-dashboard")}
+            onClick={() => navigate("/bill-payments")}
             className="text-blue-600 font-medium hover:text-blue-800"
           >
             Bills & Payments
