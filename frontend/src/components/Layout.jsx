@@ -49,7 +49,7 @@ export default function Layout({
       menuItems = [
         {
           name: "Dashboard",
-          path: "/admission",
+          path: "/dashboard",
         },
         {
           name: "Patients",
