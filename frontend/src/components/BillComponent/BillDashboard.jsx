@@ -27,6 +27,10 @@ export default function BillDashboard() {
 
   const [paymentMethod, setPaymentMethod] = useState("Cash");
 
+  const [reference, setReference] = useState("");
+
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const handleMarkPaid = (index) => {
     const updated = [...transactions];
 
@@ -34,6 +38,7 @@ export default function BillDashboard() {
       ...updated[index],
       status: "Paid",
       method: paymentMethod,
+      reference: paymentMethod === "Cash" ? "N/A" : reference || updated[index].reference,
     };
 
     setTransactions(updated);
@@ -136,10 +141,10 @@ export default function BillDashboard() {
 
                     <td className="p-4">
                       <span
-                        className={`font-normal ${
+                        className={`px-3 py-1 rounded-md text-xs ${
                           transaction.status === "Paid"
-                            ? "text-green-600"
-                            : "text-red-500"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-600"
                         }`}
                       >
                         {transaction.status}
@@ -153,6 +158,8 @@ export default function BillDashboard() {
                             onClick={() => {
                               setSelectedTransaction(transaction);
                               setSelectedIndex(index);
+                              setReference("");
+                              setPaymentMethod("Cash");
                               setShowPaymentModal(true);
                             }}
                             className="px-4 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 transition"
@@ -213,6 +220,8 @@ export default function BillDashboard() {
                   onClick={() => {
                     setSelectedTransaction(transaction);
                     setSelectedIndex(index);
+                    setReference("");
+                    setPaymentMethod("Cash");
                     setShowPaymentModal(true);
                   }}
                   className="w-full mt-4 px-4 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 transition"
@@ -227,8 +236,8 @@ export default function BillDashboard() {
         {/* Payment Modal */}
         {showPaymentModal && (
           <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-              <div className="flex justify-between items-center border-b pb-4 mb-6">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+              <div className="flex justify-between items-center px-7 py-5 border-b border-gray-200">
                 <h3 className="text-xl font-semibold">Mark Payment</h3>
 
                 <button
@@ -239,56 +248,109 @@ export default function BillDashboard() {
                 </button>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 space-y-3 mb-5">
-                <div className="flex justify-between">
-                  <span>Patient</span>
-                  <strong>{patient.pname}</strong>
+              <div className="p-7">
+                <div className="bg-gray-50 rounded-2xl p-5 mb-6">
+                  <div className="flex justify-between mb-3">
+                    <span className="text-gray-500">Patient</span>
+                    <strong>{patient.pname}</strong>
+                  </div>
+
+                  <div className="flex justify-between mb-3">
+                    <span className="text-gray-500">Purpose</span>
+                    <strong>{selectedTransaction?.purpose}</strong>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Amount</span>
+                    <strong>₹{selectedTransaction?.amount}</strong>
+                  </div>
                 </div>
 
-                <div className="flex justify-between">
-                  <span>Purpose</span>
-                  <strong>{selectedTransaction?.purpose}</strong>
-                </div>
+                <label className="block mb-2 font-medium text-gray-700">Payment Method</label>
 
-                <div className="flex justify-between">
-                  <span>Amount</span>
-                  <strong>₹{selectedTransaction?.amount}</strong>
-                </div>
-              </div>
-
-              <label className="block mb-2 font-medium">Payment Method</label>
-
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full border rounded-xl p-3 mb-6"
-              >
-                <option>Cash</option>
-                <option>UPI</option>
-                <option>Card</option>
-              </select>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowPaymentModal(false)}
-                  className="border px-4 py-2 rounded-lg"
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full border rounded-xl p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  Cancel
-                </button>
+                  <option>Cash</option>
+                  <option>UPI</option>
+                  <option>Card</option>
+                </select>
 
-                <button
-                  onClick={() => {
-                    handleMarkPaid(selectedIndex);
-                    setShowPaymentModal(false);
-                  }}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                >
-                  Confirm Payment
-                </button>
+                {/* Hide reference input completely when Cash is selected */}
+                {paymentMethod !== "Cash" && (
+                  <div className="mt-5">
+                    <label className="block mb-2 text-gray-700 font-medium">
+                      Reference
+                    </label>
+
+                    <input
+                      type="text"
+                      value={reference}
+                      onChange={(e) => setReference(e.target.value)}
+                      placeholder={
+                        paymentMethod === "UPI"
+                          ? "UPI Transaction ID"
+                          : "Card last 4 digits"
+                      }
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3 mt-8">
+                  <button
+                    onClick={() => setShowPaymentModal(false)}
+                    className="border px-5 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleMarkPaid(selectedIndex);
+                      setShowPaymentModal(false);
+                      setShowSuccess(true);
+                      setTimeout(() => {
+                        setShowSuccess(false);
+                      }, 2000); // Strict 2-second timeout
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-medium transition"
+                  >
+                    Confirm Payment
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Clean Slide down / Slide up Success Popup */}
+        <div
+          className={`fixed top-0 left-0 right-0 z-[100] flex justify-center pointer-events-none transition-all duration-300 transform ${
+            showSuccess ? "translate-y-10 opacity-100" : "-translate-y-full opacity-0"
+          }`}
+        >
+          <div className="bg-white shadow-2xl border border-gray-100 rounded-3xl p-6 text-center min-w-[340px] pointer-events-auto">
+            <div className="flex justify-center mb-3">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                <svg
+                  className="w-9 h-9 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-800">Payment Successful</h3>
+            <p className="text-gray-500 text-sm mt-1">Payment has been recorded.</p>
+          </div>
+        </div>
       </div>
     </Layout>
   );
