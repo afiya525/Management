@@ -133,7 +133,7 @@ export default function Layout({
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 z-50
+          fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-100 z-50
           flex flex-col transition-transform duration-300
           ${
             sidebarOpen
@@ -144,7 +144,7 @@ export default function Layout({
         `}
       >
         {/* Logo */}
-        <div className="h-20 flex items-center justify-between px-6 border-b">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200">
           <div>
             <h1 className="text-2xl font-bold text-blue-600">
               CMS
@@ -189,7 +189,7 @@ export default function Layout({
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-gray-300">
           <button
             onClick={handleLogout}
             className="w-full px-4 py-3 rounded-xl text-left text-red-600 hover:bg-red-50 font-medium"
