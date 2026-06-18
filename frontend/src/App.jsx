@@ -56,7 +56,7 @@ function App()  {
         element={<SeniorDoctorConsultation />}
       />
 
-      <Route path="/bill-dashboard" element={<BillPayment />} />
+      <Route path="/bill-payments" element={<BillPayment />} />
 
       <Route path="/billing/:pid" element={<BillDashboard />} />
 
