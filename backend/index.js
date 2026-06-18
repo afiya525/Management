@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import userRoute from "./routes/userRoute.js";
+import patientRoute from "./routes/patientRoout.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -27,4 +28,5 @@ mongoose
     console.log("Error while connecting with the database", error)
 });
 
-app.use("/api", userRoute);
+app.use("/userapi", userRoute);
+app.use("/patientapi", patientRoute);
