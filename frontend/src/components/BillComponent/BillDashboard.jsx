@@ -16,31 +16,24 @@ export default function BillDashboard() {
   };
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [transactions, setTransactions] = useState(patient?.transactions || []);
-
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-
   const [selectedTransaction, setSelectedTransaction] = useState(null);
-
   const [selectedIndex, setSelectedIndex] = useState(null);
-
+  
   const [paymentMethod, setPaymentMethod] = useState("Cash");
-
   const [reference, setReference] = useState("");
-
+  const [errorMsg, setErrorMsg] = useState(""); // Added error state for validation
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleMarkPaid = (index) => {
     const updated = [...transactions];
-
     updated[index] = {
       ...updated[index],
       status: "Paid",
       method: paymentMethod,
       reference: paymentMethod === "Cash" ? "N/A" : reference || updated[index].reference,
     };
-
     setTransactions(updated);
   };
 
@@ -53,106 +46,94 @@ export default function BillDashboard() {
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={() => navigate("/bill-payments")}
-            className="text-blue-600 font-medium hover:text-blue-800"
+            className="text-blue-600 font-medium hover:text-blue-800 transition-colors"
           >
             Bills & Payments
           </button>
-
           <span className="text-gray-400">&gt;</span>
-
           <span className="font-medium text-slate-700">{patient.pname}</span>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center">
-            <p className="text-gray-500 text-sm mb-2">Total Amount</p>
-
-            <p className="text-4xl font-medium text-slate-800">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
+            <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wider">Total Amount</p>
+            <p className="text-4xl font-semibold text-slate-800">
               Rs. {patient.total}
             </p>
           </div>
 
-          <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
-            <p className="text-gray-500 text-sm mb-2">Paid</p>
-
-            <p className="text-4xl font-medium text-green-700">
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center shadow-sm">
+            <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wider">Paid</p>
+            <p className="text-4xl font-semibold text-green-700">
               Rs. {patient.paid}
             </p>
           </div>
 
           <div
-            className={`rounded-2xl p-6 text-center border ${
+            className={`rounded-2xl p-6 text-center border shadow-sm ${
               patient.pending > 0
                 ? "bg-red-50 border-red-200"
                 : "bg-gray-50 border-gray-200"
             }`}
           >
-            <p className="text-gray-500 text-sm mb-2">Pending / Balance</p>
-
+            <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wider">Pending / Balance</p>
             {patient.pending > 0 ? (
-              <p className="text-4xl font-medium text-red-600">
-                Rs. {patient.pending} due
+              <p className="text-4xl font-semibold text-red-600">
+                Rs. {patient.pending} <span className="text-xl font-medium">due</span>
               </p>
             ) : (
-              <p className="text-4xl font-medium text-gray-400">Cleared</p>
+              <p className="text-4xl font-semibold text-gray-400">Cleared</p>
             )}
           </div>
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden lg:block bg-white border border-gray-200 rounded-2xl overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200">
-            <h2 className="text-lg font-normal text-gray-600">
+        <div className="hidden lg:block bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50">
+            <h2 className="text-lg font-semibold text-gray-700">
               All transactions for {patient.pname}
             </h2>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-white">
-                <tr className="text-gray-500 font-medium">
-                  <th className="p-4 text-left">Purpose</th>
-                  <th className="p-4 text-left">Amount</th>
-                  <th className="p-4 text-left">Method</th>
-                  <th className="p-4 text-left">Reference</th>
-                  <th className="p-4 text-left">Date</th>
-                  <th className="p-4 text-left">Status</th>
-
-                  {hasPending && <th className="p-4 text-left">Action</th>}
+            <table className="w-full text-sm text-left">
+              <thead className="bg-white border-b border-gray-200">
+                <tr className="text-gray-500 font-semibold uppercase tracking-wider text-xs">
+                  <th className="p-5">Purpose</th>
+                  <th className="p-5">Amount</th>
+                  <th className="p-5">Method</th>
+                  <th className="p-5">Reference</th>
+                  <th className="p-5">Date</th>
+                  <th className="p-5">Status</th>
+                  {hasPending && <th className="p-5 text-right">Action</th>}
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {transactions.map((transaction, index) => (
                   <tr
                     key={transaction.id}
-                    className="border-t border-gray-200 text-gray-600"
+                    className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="p-4">{transaction.purpose}</td>
-
-                    <td className="p-4">₹{transaction.amount}</td>
-
-                    <td className="p-4">{transaction.method}</td>
-
-                    <td className="p-4">{transaction.reference}</td>
-
-                    <td className="p-4">{transaction.date}</td>
-
-                    <td className="p-4">
+                    <td className="p-5 font-medium text-gray-900">{transaction.purpose}</td>
+                    <td className="p-5 text-gray-700">₹{transaction.amount}</td>
+                    <td className="p-5 text-gray-600">{transaction.method}</td>
+                    <td className="p-5 text-gray-600">{transaction.reference}</td>
+                    <td className="p-5 text-gray-500">{transaction.date}</td>
+                    <td className="p-5">
                       <span
-                        className={`px-3 py-1 rounded-md text-xs ${
+                        className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${
                           transaction.status === "Paid"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-600"
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-red-50 text-red-700 border-red-200"
                         }`}
                       >
                         {transaction.status}
                       </span>
                     </td>
-
                     {hasPending && (
-                      <td className="p-4">
+                      <td className="p-5 text-right">
                         {transaction.status === "Pending" && (
                           <button
                             onClick={() => {
@@ -160,9 +141,10 @@ export default function BillDashboard() {
                               setSelectedIndex(index);
                               setReference("");
                               setPaymentMethod("Cash");
+                              setErrorMsg(""); // Reset error msg
                               setShowPaymentModal(true);
                             }}
-                            className="px-4 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 transition"
+                            className="px-4 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 font-medium hover:bg-green-100 transition-colors"
                           >
                             Pay Now
                           </button>
@@ -181,38 +163,41 @@ export default function BillDashboard() {
           {transactions.map((transaction, index) => (
             <div
               key={transaction.id}
-              className="bg-white rounded-2xl shadow-sm p-5"
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5"
             >
-              <div className="space-y-2">
-                <p>
-                  <strong>Purpose:</strong> {transaction.purpose}
-                </p>
-
-                <p>
-                  <strong>Amount:</strong> ₹{transaction.amount}
-                </p>
-
-                <p>
-                  <strong>Method:</strong> {transaction.method}
-                </p>
-
-                <p>
-                  <strong>Reference:</strong> {transaction.reference}
-                </p>
-
-                <p>
-                  <strong>Date:</strong> {transaction.date}
-                </p>
-
-                <span
-                  className={`inline-block px-3 py-1 rounded-md text-xs font-medium ${
-                    transaction.status === "Paid"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  {transaction.status}
-                </span>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Purpose:</span>
+                  <span className="font-semibold text-gray-900">{transaction.purpose}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Amount:</span>
+                  <span className="font-medium text-gray-900">₹{transaction.amount}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Method:</span>
+                  <span className="text-gray-700">{transaction.method}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Reference:</span>
+                  <span className="text-gray-700">{transaction.reference}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Date:</span>
+                  <span className="text-gray-700">{transaction.date}</span>
+                </div>
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-gray-500">Status:</span>
+                  <span
+                    className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${
+                      transaction.status === "Paid"
+                        ? "bg-green-50 text-green-700 border-green-200"
+                        : "bg-red-50 text-red-700 border-red-200"
+                    }`}
+                  >
+                    {transaction.status}
+                  </span>
+                </div>
               </div>
 
               {transaction.status === "Pending" && (
@@ -222,11 +207,12 @@ export default function BillDashboard() {
                     setSelectedIndex(index);
                     setReference("");
                     setPaymentMethod("Cash");
+                    setErrorMsg(""); // Reset error msg
                     setShowPaymentModal(true);
                   }}
-                  className="w-full mt-4 px-4 py-2 rounded-lg border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 transition"
+                  className="w-full mt-5 px-4 py-2.5 rounded-xl border border-green-300 bg-green-50 text-green-700 font-semibold hover:bg-green-100 transition-colors shadow-sm"
                 >
-                  Mark Paid
+                  Pay Now
                 </button>
               )}
             </div>
@@ -235,88 +221,97 @@ export default function BillDashboard() {
 
         {/* Payment Modal */}
         {showPaymentModal && (
-          <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
-              <div className="flex justify-between items-center px-7 py-5 border-b border-gray-200">
-                <h3 className="text-xl font-semibold">Mark Payment</h3>
-
+              <div className="flex justify-between items-center px-7 py-5 border-b border-gray-100">
+                <h3 className="text-xl font-bold text-gray-900">Mark Payment</h3>
                 <button
                   onClick={() => setShowPaymentModal(false)}
-                  className="text-gray-500 text-xl"
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-xl transition-colors"
                 >
                   ✕
                 </button>
               </div>
 
               <div className="p-7">
-                <div className="bg-gray-50 rounded-2xl p-5 mb-6">
-                  <div className="flex justify-between mb-3">
-                    <span className="text-gray-500">Patient</span>
-                    <strong>{patient.pname}</strong>
-                  </div>
-
-                  <div className="flex justify-between mb-3">
-                    <span className="text-gray-500">Purpose</span>
-                    <strong>{selectedTransaction?.purpose}</strong>
-                  </div>
-
+                <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-6 space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Amount</span>
-                    <strong>₹{selectedTransaction?.amount}</strong>
+                    <span className="text-gray-500">Patient</span>
+                    <strong className="text-gray-900">{patient.pname}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Purpose</span>
+                    <strong className="text-gray-900">{selectedTransaction?.purpose}</strong>
+                  </div>
+                  <div className="flex justify-between pt-3 border-t border-blue-100/50 text-base">
+                    <span className="text-gray-600 font-medium">Amount Due</span>
+                    <strong className="text-blue-700">₹{selectedTransaction?.amount}</strong>
                   </div>
                 </div>
 
-                <label className="block mb-2 font-medium text-gray-700">Payment Method</label>
-
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full border rounded-xl p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option>Cash</option>
-                  <option>UPI</option>
-                  <option>Card</option>
-                </select>
-
-                {/* Hide reference input completely when Cash is selected */}
-                {paymentMethod !== "Cash" && (
-                  <div className="mt-5">
-                    <label className="block mb-2 text-gray-700 font-medium">
-                      Reference
-                    </label>
-
-                    <input
-                      type="text"
-                      value={reference}
-                      onChange={(e) => setReference(e.target.value)}
-                      placeholder={
-                        paymentMethod === "UPI"
-                          ? "UPI Transaction ID"
-                          : "Card last 4 digits"
-                      }
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block mb-2 text-sm font-semibold text-gray-700">Payment Method</label>
+                    <select
+                      value={paymentMethod}
+                      onChange={(e) => {
+                        setPaymentMethod(e.target.value);
+                        setErrorMsg(""); // Clear errors when switching methods
+                      }}
+                      className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow bg-white"
+                    >
+                      <option value="Cash">Cash</option>
+                      <option value="UPI">UPI</option>
+                      <option value="Card">Card</option>
+                    </select>
                   </div>
-                )}
 
-                <div className="flex justify-end gap-3 mt-8">
+                  {/* Conditionally render UPI Input */}
+                  {paymentMethod === "UPI" && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                      <label className="block mb-2 text-sm font-semibold text-gray-700">
+                        UPI Transaction ID <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={reference}
+                        onChange={(e) => {
+                          setReference(e.target.value);
+                          if (errorMsg) setErrorMsg("");
+                        }}
+                        placeholder="Enter 12-digit Ref ID"
+                        className={`w-full border rounded-xl p-3 text-sm focus:outline-none focus:ring-2 transition-shadow ${
+                          errorMsg ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+                        }`}
+                      />
+                      {errorMsg && <p className="text-red-500 text-xs mt-2 font-medium">{errorMsg}</p>}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
                   <button
                     onClick={() => setShowPaymentModal(false)}
-                    className="border px-5 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50"
+                    className="border border-gray-300 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
-
                   <button
                     onClick={() => {
+                      // Validation block
+                      if (paymentMethod === "UPI" && !reference.trim()) {
+                        setErrorMsg("UPI Transaction ID is required to proceed.");
+                        return;
+                      }
+
                       handleMarkPaid(selectedIndex);
                       setShowPaymentModal(false);
                       setShowSuccess(true);
                       setTimeout(() => {
                         setShowSuccess(false);
-                      }, 2000); // Strict 2-second timeout
+                      }, 2000);
                     }}
-                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-medium transition"
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
                   >
                     Confirm Payment
                   </button>
@@ -346,9 +341,8 @@ export default function BillDashboard() {
                 </svg>
               </div>
             </div>
-
-            <h3 className="text-lg font-semibold text-gray-800">Payment Successful</h3>
-            <p className="text-gray-500 text-sm mt-1">Payment has been recorded.</p>
+            <h3 className="text-lg font-bold text-gray-900">Payment Successful</h3>
+            <p className="text-gray-500 text-sm mt-1 font-medium">Payment has been securely recorded.</p>
           </div>
         </div>
       </div>
