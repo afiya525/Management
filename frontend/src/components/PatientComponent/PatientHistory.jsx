@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Layout from "../../components/Layout";
+import PatientVisitTabs from "./PatientVisitTabs"; // Import the unified component
 import { Clock, Calendar, Stethoscope, FileText, Lock, CheckCircle2 } from "lucide-react";
 
 // Mock Database to simulate fetching patient data based on PID
@@ -15,17 +16,16 @@ export default function PatientHistory() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [consultationNotes, setConsultationNotes] = useState("");
   
-  // 1. Grab the PID and set up navigate
+  // Grab the PID from URL params
   const { pid } = useParams();
-  const navigate = useNavigate();
 
-  // 2. Fetch patient data (fallback if PID not found in mock DB)
+  // Fetch patient data (fallback if PID not found in mock DB)
   const patientData = mockPatientsDb[pid] || { 
     name: "Unknown Patient", bp: "--/--", pulse: "-- bpm", weight: "-- kg" 
   };
 
-  // Fetch role from local storage (defaults to manager for testing if empty)
-  const storedRole = (localStorage.getItem("role") || "manager").toLowerCase();
+  // Fetch role from local storage
+  const storedRole = (localStorage.getItem("role") || "").toLowerCase();
   
   const isManager = storedRole === "manager";
   const isSeniorDoctor = storedRole === "senior doctor";
@@ -93,18 +93,12 @@ export default function PatientHistory() {
           </div>
         </div>
 
-        {/* Tabs - Margins matched exactly to PatientDetails */}
-        <div className="flex w-full sm:w-auto mb-6 overflow-x-auto hide-scrollbar">
-          <button 
-            onClick={() => navigate(`/patients/${pid}`)}
-            className="flex-1 sm:flex-none border border-r-0 border-gray-300 px-6 py-2.5 rounded-l-xl text-gray-700 text-sm font-medium whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
-          >
-            Current Visit
-          </button>
-          <button className="flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2.5 font-medium text-sm whitespace-nowrap shadow-sm rounded-r-xl cursor-default">
-            History ({patientHistory.length})
-          </button>
-        </div>
+        {/* --- Unified Tabs Component --- */}
+        <PatientVisitTabs 
+          pid={pid} 
+          historyCount={patientHistory.length} 
+          activeTab="history" 
+        />
 
         {/* --- MANAGER VIEW --- */}
         {isManager && (
