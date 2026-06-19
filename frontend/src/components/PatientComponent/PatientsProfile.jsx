@@ -1,8 +1,20 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Layout from "../Layout";
+import { Link, useNavigate } from "react-router-dom";
+import Layout from "../../components/Layout"; // Adjust import path as needed
 
-export default function PatientDetails({ role = 'manager' }) {
+export default function PatientDetails() {
+  const navigate = useNavigate();
+
+  // Fetch role from local storage (defaults to empty string if not found)
+  const role = (localStorage.getItem("role") || "").toLowerCase();
+  
+  // Define permissions
+  const isManager = role === "manager";
+  const isSeniorDoctor = role === "senior doctor";
+  
+  // Determine if the user should see Manager/Doctor level details (History, Edit, Vitals, Observations)
+  const hasAdvancedAccess = isManager || isSeniorDoctor;
+
   // --- State for Patient Details (Editable) ---
   const [patientData, setPatientData] = useState({
     pid: "P001",
@@ -73,31 +85,41 @@ export default function PatientDetails({ role = 'manager' }) {
 
   return (
     <Layout>
-      <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto flex flex-col h-full">
+      <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto flex flex-col h-full min-h-screen">
+        
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           <div className="flex items-center gap-2 sm:gap-3 text-sm flex-wrap">
-            <Link to="/patients" className="text-blue-600 font-medium cursor-pointer hover:underline">
+            <Link to="/patients" className="text-blue-600 font-medium cursor-pointer hover:underline transition-colors">
               Patients
             </Link>
             <span className="text-gray-400">{">"}</span>
             <span className="text-gray-900 font-medium">{patientData.name}</span>
           </div>
 
-          {/* Edit Details Controls - Only visible to manager */}
-          {role === 'manager' && (
+          {/* Edit Details Controls - Only visible to Manager/Senior Doctor */}
+          {hasAdvancedAccess && (
             <div className="flex items-center gap-3 w-full sm:w-auto">
               {isEditing ? (
                 <>
-                  <button onClick={handleCancel} className="flex-1 sm:flex-none border border-gray-300 rounded-xl px-5 py-2 font-medium bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                  <button 
+                    onClick={handleCancel} 
+                    className="flex-1 sm:flex-none border border-gray-300 rounded-xl px-5 py-2 font-medium bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+                  >
                     Cancel
                   </button>
-                  <button onClick={handleSave} className="flex-1 sm:flex-none border border-blue-600 rounded-xl px-5 py-2 font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm">
+                  <button 
+                    onClick={handleSave} 
+                    className="flex-1 sm:flex-none border border-blue-600 rounded-xl px-5 py-2 font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+                  >
                     Save Changes
                   </button>
                 </>
               ) : (
-                <button onClick={handleEditClick} className="w-full sm:w-auto border border-gray-300 rounded-xl px-5 py-2 font-medium bg-white hover:bg-gray-50 transition-colors shadow-sm">
+                <button 
+                  onClick={handleEditClick} 
+                  className="w-full sm:w-auto border border-gray-300 rounded-xl px-5 py-2 font-medium bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+                >
                   Edit Details
                 </button>
               )}
@@ -107,11 +129,16 @@ export default function PatientDetails({ role = 'manager' }) {
 
         {/* Tabs */}
         <div className="flex w-full sm:w-auto mb-6 overflow-x-auto hide-scrollbar">
-          <button className={`flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2.5 font-medium text-sm whitespace-nowrap shadow-sm ${role === 'manager' ? 'rounded-l-xl' : 'rounded-xl'}`}>
+          <button className={`flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2.5 font-medium text-sm whitespace-nowrap shadow-sm ${hasAdvancedAccess ? 'rounded-l-xl' : 'rounded-xl'}`}>
             Current Visit
           </button>
-          {role === 'manager' && (
-            <button className="flex-1 sm:flex-none border border-l-0 border-gray-300 px-6 py-2.5 rounded-r-xl text-gray-700 text-sm whitespace-nowrap bg-white hover:bg-gray-50 transition-colors">
+          
+          {/* History Tab - Only visible to Manager/Senior Doctor */}
+          {hasAdvancedAccess && (
+            <button 
+              onClick={() => navigate(`/patient-history/${patientData.pid}`)} 
+              className="flex-1 sm:flex-none border border-l-0 border-gray-300 px-6 py-2.5 rounded-r-xl text-gray-700 text-sm whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
+            >
               History (1)
             </button>
           )}
@@ -221,7 +248,7 @@ export default function PatientDetails({ role = 'manager' }) {
             </div>
 
             {/* Vitals - Stretches to fill remaining height */}
-            {role === 'manager' && (
+            {hasAdvancedAccess && (
               <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-6 lg:p-8 flex-1 flex flex-col min-h-[250px]">
                 <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-900 shrink-0">
                   Today's Vitals
@@ -312,7 +339,7 @@ export default function PatientDetails({ role = 'manager' }) {
         </div>
 
         {/* Full-width Observation Section - Scrollable */}
-        {role === 'manager' && (
+        {hasAdvancedAccess && (
           <div className="mt-6 bg-white border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-6 lg:p-8 flex flex-col">
             <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-900 shrink-0">
               Today's Observations

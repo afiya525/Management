@@ -28,6 +28,7 @@ import PharmacyBill from "./pages/Pharmacist/PharmacyBill";
 
 import PatientsList from "./components/PatientComponent/PatientsList";
 import PatientProfile from "./components/PatientComponent/PatientsProfile";
+import PatientHistory from "./components/PatientComponent/PatientHistory";
 
 function App() {
   return (
@@ -75,6 +76,8 @@ function App() {
 
       <Route path="/patients" element={<PatientsList />} />
       <Route path="/patients/:pid" element={<PatientProfile />} />
+
+      <Route path="/patient-history/:pid" element={<PatientHistory />} />
 
       <Route
         path="*"
