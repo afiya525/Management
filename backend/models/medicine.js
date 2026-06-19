@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-import { MedCounter } from './medCounter.js'; 
 
 
 const medicineSchema = new mongoose.Schema({
@@ -33,14 +32,14 @@ const medicineSchema = new mongoose.Schema({
 });
 
 // Pre-save middleware to handle atomic auto-incrementing for mid
-MedicineSchema.pre('save', async function (next) {
+medicineSchema.pre('save', async function (next) {
   const medicine = this;
 
   // Only generate a new ID if the document is being created for the first time
   if (medicine.isNew) {
     try {
       // Find and atomically increment the medicine sequence
-      const counter = await MedCounter.findOneAndUpdate(
+      const counter = await mongoose.model('medCounter').findOneAndUpdate(
         { id: 'medicineId' },
         { $inc: { seq: 1 } },
         { new: true, upsert: true } // Creates the counter document if it doesn't exist

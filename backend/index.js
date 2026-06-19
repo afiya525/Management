@@ -2,7 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import userRoute from "./routes/userRoute.js";
-import patientRoute from "./routes/patientRoout.js";
+import patientRoute from "./routes/patientRoute.js";
+import medicineRoute from "./routes/medicineRoute.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -30,3 +31,4 @@ mongoose
 
 app.use("/userapi", userRoute);
 app.use("/patientapi", patientRoute);
+app.use("/medicineapi", medicineRoute);

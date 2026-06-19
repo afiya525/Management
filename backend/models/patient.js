@@ -60,7 +60,7 @@ const patientSchema = new mongoose.Schema({
 });
 
 // Pre-save middleware to handle atomic auto-incrementing
-PatientSchema.pre('save', async function (next) {
+patientSchema.pre('save', async function (next) {
   const patient = this;
 
   // Only run this logic if it's a completely new patient entry
