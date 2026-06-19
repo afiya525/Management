@@ -1,10 +1,28 @@
 import React, { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
 import { Clock, Calendar, Stethoscope, FileText, Lock, CheckCircle2 } from "lucide-react";
+
+// Mock Database to simulate fetching patient data based on PID
+const mockPatientsDb = {
+  "P001": { name: "John Doe", bp: "120/80", pulse: "72 bpm", weight: "75 kg" },
+  "P002": { name: "Mathew Joseph", bp: "118/76", pulse: "68 bpm", weight: "82 kg" },
+  "P003": { name: "Daniel Joshy", bp: "122/82", pulse: "75 bpm", weight: "70 kg" },
+  "P004": { name: "Afiya Fathima", bp: "110/70", pulse: "80 bpm", weight: "55 kg" },
+};
 
 export default function PatientHistory() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [consultationNotes, setConsultationNotes] = useState("");
+  
+  // 1. Grab the PID and set up navigate
+  const { pid } = useParams();
+  const navigate = useNavigate();
+
+  // 2. Fetch patient data (fallback if PID not found in mock DB)
+  const patientData = mockPatientsDb[pid] || { 
+    name: "Unknown Patient", bp: "--/--", pulse: "-- bpm", weight: "-- kg" 
+  };
 
   // Fetch role from local storage (defaults to manager for testing if empty)
   const storedRole = (localStorage.getItem("role") || "manager").toLowerCase();
@@ -13,6 +31,7 @@ export default function PatientHistory() {
   const isSeniorDoctor = storedRole === "senior doctor";
   const canViewHistory = isManager || isSeniorDoctor;
 
+  // Mock History Data
   const patientHistory = [
     {
       id: 1,
@@ -40,13 +59,6 @@ export default function PatientHistory() {
     },
   ];
 
-  const currentVitals = {
-    patient: "John Doe",
-    bp: "120/80",
-    pulse: "72 bpm",
-    weight: "75 kg"
-  };
-
   // --- UNAUTHORIZED VIEW (FOS) ---
   if (!canViewHistory) {
     return (
@@ -66,19 +78,37 @@ export default function PatientHistory() {
 
   return (
     <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto flex flex-col h-full min-h-screen">
         
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Patient Medical History</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Viewing records for <span className="font-semibold text-gray-700">{currentVitals.patient}</span>
-          </p>
+        {/* Header & Breadcrumb - Aligned exactly with PatientDetails height/margins */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8 min-h-[40px]">
+          <div className="flex items-center gap-2 sm:gap-3 text-sm flex-wrap">
+            <Link to="/patients" className="text-blue-600 font-medium cursor-pointer hover:underline transition-colors">
+              Patients
+            </Link>
+            <span className="text-gray-400">{">"}</span>
+            <Link to={`/patients/${pid}`} className="text-gray-900 font-medium cursor-pointer hover:underline transition-colors title='Back to Details'">
+              {patientData.name}
+            </Link>
+          </div>
+        </div>
+
+        {/* Tabs - Margins matched exactly to PatientDetails */}
+        <div className="flex w-full sm:w-auto mb-6 overflow-x-auto hide-scrollbar">
+          <button 
+            onClick={() => navigate(`/patients/${pid}`)}
+            className="flex-1 sm:flex-none border border-r-0 border-gray-300 px-6 py-2.5 rounded-l-xl text-gray-700 text-sm font-medium whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
+          >
+            Current Visit
+          </button>
+          <button className="flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2.5 font-medium text-sm whitespace-nowrap shadow-sm rounded-r-xl cursor-default">
+            History ({patientHistory.length})
+          </button>
         </div>
 
         {/* --- MANAGER VIEW --- */}
         {isManager && (
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-4xl space-y-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-600" /> Complete Historical Records
             </h3>
@@ -209,19 +239,19 @@ export default function PatientHistory() {
                 <div className="mb-6 grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm">
                   <div>
                     <span className="text-gray-500 text-xs uppercase font-bold block mb-0.5">Patient</span>
-                    <span className="font-semibold text-gray-900">{currentVitals.patient}</span>
+                    <span className="font-semibold text-gray-900">{patientData.name}</span>
                   </div>
                   <div>
                     <span className="text-gray-500 text-xs uppercase font-bold block mb-0.5">Vitals (BP)</span>
-                    <span className="font-semibold text-gray-900">{currentVitals.bp}</span>
+                    <span className="font-semibold text-gray-900">{patientData.bp}</span>
                   </div>
                   <div>
                     <span className="text-gray-500 text-xs uppercase font-bold block mb-0.5">Pulse</span>
-                    <span className="font-semibold text-gray-900">{currentVitals.pulse}</span>
+                    <span className="font-semibold text-gray-900">{patientData.pulse}</span>
                   </div>
                   <div>
                     <span className="text-gray-500 text-xs uppercase font-bold block mb-0.5">Weight</span>
-                    <span className="font-semibold text-gray-900">{currentVitals.weight}</span>
+                    <span className="font-semibold text-gray-900">{patientData.weight}</span>
                   </div>
                 </div>
 

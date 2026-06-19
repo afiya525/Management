@@ -139,7 +139,7 @@ export default function PatientDetails() {
               onClick={() => navigate(`/patient-history/${patientData.pid}`)} 
               className="flex-1 sm:flex-none border border-l-0 border-gray-300 px-6 py-2.5 rounded-r-xl text-gray-700 text-sm whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
             >
-              History (1)
+              History (2)
             </button>
           )}
         </div>
