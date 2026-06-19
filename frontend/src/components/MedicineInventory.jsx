@@ -8,6 +8,7 @@ export default function MedicineInventory() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(""); // Added error state for validation
 
   // Directly pulling active role matching your layout check
   const role = localStorage.getItem("role") || "";
@@ -26,14 +27,14 @@ export default function MedicineInventory() {
       name: "Augmentin",
       scientificName: "Amoxicillin + Clavulanic Acid",
       unitCost: 35,
-      quantity: 40,
+      quantity: 40, // Low stock example
     },
     {
       id: "M003",
       name: "Metformin",
       scientificName: "Metformin Hydrochloride",
       unitCost: 15,
-      quantity: 20,
+      quantity: 20, // Low stock example
     },
   ]);
 
@@ -59,6 +60,12 @@ export default function MedicineInventory() {
       return;
     }
 
+    // Validation Check
+    if (!form.name || !form.scientificName || !form.unitCost || !form.quantity) {
+      setErrorMsg("All fields are required. Please fill out every field.");
+      return;
+    }
+
     const newMedicine = {
       id: `M${String(medicines.length + 1).padStart(3, "0")}`,
       name: form.name,
@@ -70,6 +77,7 @@ export default function MedicineInventory() {
     setMedicines([...medicines, newMedicine]);
     setForm({ name: "", scientificName: "", unitCost: "", quantity: "" });
     setShowAddModal(false);
+    setErrorMsg("");
   };
 
   const openEditModal = (medicine) => {
@@ -81,11 +89,19 @@ export default function MedicineInventory() {
       unitCost: medicine.unitCost,
       quantity: medicine.quantity,
     });
+    setErrorMsg("");
     setShowEditModal(true);
   };
 
   const handleUpdateMedicine = () => {
     if (!isManager) return;
+
+    // Validation Check
+    if (!form.name || !form.scientificName || !form.unitCost || !form.quantity) {
+      setErrorMsg("All fields are required. Please fill out every field.");
+      return;
+    }
+
     setMedicines(
       medicines.map((medicine) =>
         medicine.id === selectedMedicine.id
@@ -100,6 +116,7 @@ export default function MedicineInventory() {
       )
     );
     setShowEditModal(false);
+    setErrorMsg("");
   };
 
   const handleDeleteMedicine = (id) => {
@@ -125,9 +142,16 @@ export default function MedicineInventory() {
     );
   };
 
+  const closeModals = () => {
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setErrorMsg("");
+    setForm({ name: "", scientificName: "", unitCost: "", quantity: "" });
+  };
+
   return (
     <Layout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-      <div className="w-full max-w-full block overflow-hidden bg-gray-50 p-4 md:p-6 lg:p-8">
+      <div className="w-full max-w-full block overflow-hidden bg-gray-50 p-4 md:p-6 lg:p-8 min-h-screen">
         
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 w-full">
@@ -141,7 +165,10 @@ export default function MedicineInventory() {
           {/* MANAGER ONLY VIEWABLE BUTTON */}
           {isManager && (
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setForm({ name: "", scientificName: "", unitCost: "", quantity: "" });
+                setShowAddModal(true);
+              }}
               className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl transition font-medium text-sm shadow-sm whitespace-nowrap self-start sm:self-auto"
             >
               + Add Medicine
@@ -150,7 +177,7 @@ export default function MedicineInventory() {
         </div>
 
         {/* Filters & Tabs */}
-        <div className="flex gap-3 mb-6 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-3 mb-6 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 hide-scrollbar">
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 py-2.5 rounded-xl text-sm font-medium transition whitespace-nowrap ${
@@ -175,13 +202,16 @@ export default function MedicineInventory() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 border border-gray-200 w-full">
+        <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 border border-gray-200 w-full flex items-center gap-3">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             type="text"
-            placeholder="Search medicines..."
+            placeholder="Search medicines by name or scientific name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-md border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50"
+            className="w-full text-sm text-gray-700 focus:outline-none"
           />
         </div>
 
@@ -218,10 +248,14 @@ export default function MedicineInventory() {
                     </td>
                     <td className="p-4 text-sm pr-6">
                       <div className="flex items-center justify-end gap-2">
-                        {/* Allowed for both Manager and Pharmacist */}
+                        {/* Allowed for both Manager and Pharmacist. Highlights RED if low stock */}
                         <button
                           onClick={() => handleRestock(medicine.id)}
-                          className="px-3 py-1.5 border border-gray-200 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-50 hover:text-gray-900 transition mr-2"
+                          className={`px-3 py-1.5 border text-xs font-medium rounded-lg transition mr-2 ${
+                            medicine.quantity < 50
+                              ? "border-red-200 text-red-700 bg-red-50 hover:bg-red-100"
+                              : "border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          }`}
                         >
                           Restock
                         </button>
@@ -269,20 +303,30 @@ export default function MedicineInventory() {
 
         {/* Modal Sheet Protection Guardrail */}
         {(showAddModal || showEditModal) && isManager && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-            <div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-xl border border-gray-100 transform transition-all">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl border border-gray-100 transform transition-all">
               <h2 className="text-xl font-bold text-gray-900 mb-5 pb-3 border-b border-gray-100">
                 {showAddModal ? "Add New Asset Data" : "Modify Inventory Listing"}
               </h2>
 
+              {/* Error Message Display */}
+              {errorMsg && (
+                <div className="mb-4 bg-red-50 text-red-700 p-3 rounded-lg text-sm font-medium border border-red-100">
+                  {errorMsg}
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Medicine Details</label>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Medicine Details <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     placeholder="Generic/Commercial Name"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      setErrorMsg("");
+                    }}
                     className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                 </div>
@@ -290,31 +334,40 @@ export default function MedicineInventory() {
                 <div>
                   <input
                     type="text"
-                    placeholder="Active Ingredients"
+                    placeholder="Scientific Name"
                     value={form.scientificName}
-                    onChange={(e) => setForm({ ...form, scientificName: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, scientificName: e.target.value });
+                      setErrorMsg("");
+                    }}
                     className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Cost (Per Unit)</label>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Cost (Per Unit) <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       placeholder="₹ Base Cost"
                       value={form.unitCost}
-                      onChange={(e) => setForm({ ...form, unitCost: e.target.value })}
+                      onChange={(e) => {
+                        setForm({ ...form, unitCost: e.target.value });
+                        setErrorMsg("");
+                      }}
                       className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Initial Stock</label>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Initial Stock <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       placeholder="Units Available"
                       value={form.quantity}
-                      onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                      onChange={(e) => {
+                        setForm({ ...form, quantity: e.target.value });
+                        setErrorMsg("");
+                      }}
                       className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
@@ -323,18 +376,15 @@ export default function MedicineInventory() {
 
               <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
                 <button
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setShowEditModal(false);
-                  }}
-                  className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
+                  onClick={closeModals}
+                  className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={showAddModal ? handleAddMedicine : handleUpdateMedicine}
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm"
                 >
                   {showAddModal ? "Commit Registry" : "Save Changes"}
                 </button>
