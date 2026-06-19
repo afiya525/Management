@@ -93,6 +93,28 @@ export const updateUser = async (req, res) => {
     }
 };
 
+
+export const updateDocAttendece = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { attendance } = req.body;
+        if (attendance=='active'){
+            const newAttendence='inactive'
+        }
+        else{
+            const newAttendence='active'
+        }
+        const updatedAttendence= await user.findByIdAndUpdate(userId, newAttendence, {new: true});
+        if (!updatedAttendence){
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json(updatedUser);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
 export const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -106,3 +128,5 @@ export const deleteUser = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+
