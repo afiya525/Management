@@ -14,6 +14,7 @@ export default function Admission() {
   const [selectedPatient, setSelectedPatient] = useState("");
   const [selectedRoom, setSelectedRoom] = useState("");
   const [advance, setAdvance] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   
   const today = new Date().toISOString().split("T")[0];
   const [fromDate, setFromDate] = useState(today);
@@ -116,8 +117,9 @@ export default function Admission() {
   };
 
   const handleAssignRoom = () => {
-    if (!selectedPatient || !selectedRoom) {
-      alert("Please fill all required fields");
+    // Advance payment is now mandatory along with patient and room selection
+    if (!selectedPatient || !selectedRoom || !advance) {
+      setErrorMsg("Please fill all required fields, including Advance Payment.");
       return;
     }
 
@@ -142,18 +144,18 @@ export default function Admission() {
     setAdvance("");
     setFromDate(today);
     setPaymentUpto("");
+    setErrorMsg("");
   };
 
-  const handleDischarge = (roomNo) => {
+  // Toggle Room between Available and Closed
+  const toggleRoomStatus = (roomNo, currentStatus) => {
+    const newStatus = currentStatus === "Available" ? "Closed" : "Available";
     setRoomData((prev) =>
       prev.map((room) =>
         room.roomNo === roomNo
           ? {
               ...room,
-              status: "Available",
-              patient: null,
-              admitted: null,
-              advance: null,
+              status: newStatus,
             }
           : room
       )
@@ -172,21 +174,21 @@ export default function Admission() {
           </div>
 
           <button
-            onClick={() => setShowAssignModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl transition"
+            onClick={() => { setShowAssignModal(true); setErrorMsg(""); }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl transition shadow-sm font-medium"
           >
             + Assign Room
           </button>
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm mb-6">
+        <div className="bg-white border border-gray-200 rounded-2xl mb-6 overflow-hidden shadow-sm">
           <input
             type="text"
-            placeholder="Search room or patient..."
+            placeholder="Search room or patient name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full md:w-96 border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-5 py-4 text-gray-600 placeholder-gray-400 focus:outline-none"
           />
         </div>
 
@@ -194,33 +196,33 @@ export default function Admission() {
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-100 border-b border-gray-200">
+              <thead className="bg-gray-50/70 border-b border-gray-200">
                 <tr>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Room</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Facilities</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Per Night</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Patient</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Admitted</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Advance</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Action</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Room</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Facilities</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Per Night</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Patient</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Admitted</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Advance</th>
+                  <th className="p-4 text-right text-sm font-semibold text-gray-600 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-200">
                 {filteredRooms.map((room) => (
                   <tr key={room.roomNo} className="hover:bg-gray-50/70 transition-colors">
-                    <td className="p-4 text-sm font-medium text-gray-900">Room {room.roomNo}</td>
+                    <td className="p-4 text-sm font-bold text-gray-900">Room {room.roomNo}</td>
                     <td className="p-4 text-sm text-gray-600">{room.facilities}</td>
-                    <td className="p-4 text-sm text-gray-900">₹{room.charge}</td>
+                    <td className="p-4 text-sm text-gray-900 font-medium">₹{room.charge}</td>
                     <td className="p-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`px-3 py-1 rounded-full text-xs font-medium border ${
                           room.status === "Occupied"
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
                             : room.status === "Available"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-gray-100 text-gray-600 border-gray-300"
                         }`}
                       >
                         {room.status}
@@ -230,7 +232,7 @@ export default function Admission() {
                       {room.patient ? (
                         <button
                           onClick={() => handlePatientClick(room)}
-                          className="text-blue-600 hover:text-blue-800 font-medium underline text-left"
+                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline text-left"
                         >
                           {room.patient}
                         </button>
@@ -239,17 +241,28 @@ export default function Admission() {
                       )}
                     </td>
                     <td className="p-4 text-sm text-gray-600">{room.admitted || <span className="text-gray-400">—</span>}</td>
-                    <td className="p-4 text-sm text-gray-900">
+                    <td className="p-4 text-sm text-gray-900 font-medium">
                       {room.advance ? `₹${room.advance}` : <span className="text-gray-400">—</span>}
                     </td>
-                    <td className="p-4">
-                      {room.status === "Occupied" && (
+                    <td className="p-4 text-right">
+                      {room.status === "Available" && (
                         <button
-                          onClick={() => handleDischarge(room.roomNo)}
-                          className="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 text-sm font-medium transition"
+                          onClick={() => toggleRoomStatus(room.roomNo, room.status)}
+                          className="text-xs font-medium border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          Discharge
+                          Mark Closed
                         </button>
+                      )}
+                      {room.status === "Closed" && (
+                        <button
+                          onClick={() => toggleRoomStatus(room.roomNo, room.status)}
+                          className="text-xs font-medium border border-green-300 text-green-700 px-3 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 transition-colors"
+                        >
+                          Mark Available
+                        </button>
+                      )}
+                      {room.status === "Occupied" && (
+                        <span className="text-gray-400 text-xs italic">In Use</span>
                       )}
                     </td>
                   </tr>
@@ -266,12 +279,12 @@ export default function Admission() {
               <div className="flex justify-between items-start mb-3">
                 <h3 className="font-bold text-lg text-gray-900">Room {room.roomNo}</h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  className={`px-3 py-1 rounded-full text-xs font-medium border ${
                     room.status === "Occupied"
-                      ? "bg-blue-100 text-blue-700"
+                      ? "bg-blue-50 text-blue-700 border-blue-200"
                       : room.status === "Available"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-700"
+                      ? "bg-green-50 text-green-700 border-green-200"
+                      : "bg-gray-100 text-gray-600 border-gray-300"
                   }`}
                 >
                   {room.status}
@@ -279,7 +292,7 @@ export default function Admission() {
               </div>
 
               <p className="text-gray-600 text-sm mb-2">{room.facilities}</p>
-              <div className="grid grid-cols-2 gap-y-2 text-sm pt-2 border-t border-gray-100 mt-3">
+              <div className="grid grid-cols-2 gap-y-2 text-sm pt-3 border-t border-gray-100 mt-3">
                 <span className="text-gray-500">Price:</span>
                 <span className="font-medium text-gray-900">₹{room.charge}/night</span>
                 
@@ -288,7 +301,7 @@ export default function Admission() {
                   {room.patient ? (
                     <button
                       onClick={() => handlePatientClick(room)}
-                      className="text-blue-600 hover:text-blue-800 font-medium underline text-left"
+                      className="text-blue-600 hover:text-blue-800 font-medium hover:underline text-left"
                     >
                       {room.patient}
                     </button>
@@ -301,14 +314,27 @@ export default function Admission() {
                 <span className="font-medium text-gray-900">{room.advance ? `₹${room.advance}` : "—"}</span>
               </div>
 
-              {room.status === "Occupied" && (
-                <button 
-                  onClick={() => handleDischarge(room.roomNo)}
-                  className="w-full mt-4 border border-red-200 text-red-600 py-2.5 rounded-xl text-sm font-medium hover:bg-red-50 transition"
-                >
-                  Discharge
-                </button>
-              )}
+              <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end">
+                {room.status === "Available" && (
+                  <button
+                    onClick={() => toggleRoomStatus(room.roomNo, room.status)}
+                    className="w-full text-sm font-medium border border-gray-300 text-gray-600 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    Mark Closed for Cleaning
+                  </button>
+                )}
+                {room.status === "Closed" && (
+                  <button
+                    onClick={() => toggleRoomStatus(room.roomNo, room.status)}
+                    className="w-full text-sm font-medium border border-green-300 text-green-700 py-2 rounded-xl bg-green-50 hover:bg-green-100 transition-colors"
+                  >
+                    Mark as Available
+                  </button>
+                )}
+                {room.status === "Occupied" && (
+                  <p className="w-full text-center text-gray-400 text-sm italic">Room is currently in use</p>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -378,19 +404,34 @@ export default function Admission() {
           </div>
         )}
 
-        {/* Assign Room Modal */}
+        {/* Assign Room Modal (Compact Design) */}
         {showAssignModal && (
-          <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4 animate-fade-in">
-            <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">Assign Room to Patient</h2>
+          <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4 animate-fade-in backdrop-blur-sm">
+            <div className="bg-white rounded-2xl w-full max-w-2xl p-6 md:p-8 shadow-2xl">
+              <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                <h2 className="text-2xl font-bold text-gray-900">Assign Room to Patient</h2>
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  className="text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
 
-              <div className="space-y-5">
+              {errorMsg && (
+                <div className="mb-4 bg-red-50 text-red-700 p-3 rounded-lg text-sm font-medium border border-red-100">
+                  {errorMsg}
+                </div>
+              )}
+
+              {/* Grid Layout for compact height */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Patient *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">Patient <span className="text-red-500">*</span></label>
                   <select
                     value={selectedPatient}
                     onChange={(e) => setSelectedPatient(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                   >
                     <option value="">Select patient...</option>
                     <option value="John Doe">John Doe</option>
@@ -400,11 +441,11 @@ export default function Admission() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Room *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">Room <span className="text-red-500">*</span></label>
                   <select
                     value={selectedRoom}
                     onChange={(e) => setSelectedRoom(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                   >
                     <option value="">Select available room...</option>
                     {roomData
@@ -418,52 +459,54 @@ export default function Admission() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">From Date *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">From Date <span className="text-red-500">*</span></label>
                   <input
                     type="date"
+                    min={today}
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">
                     Payment Upto <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <input
                     type="date"
+                    min={fromDate}
                     value={paymentUpto}
                     onChange={(e) => setPaymentUpto(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Advance Payment (Rs.)</label>
+                <div className="sm:col-span-2 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                  <label className="block text-sm font-bold text-gray-700 mb-1.5">Advance Payment (Rs.) <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     placeholder="Enter advance amount collected"
                     value={advance}
                     onChange={(e) => setAdvance(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <p className="text-xs text-gray-400 mt-2">
-                    This amount will be recorded as paid and will be used for discharge settlement.
+                  <p className="text-xs text-gray-500 mt-2 font-medium">
+                    This amount is mandatory to confirm the room assignment and will be deducted from the final bill.
                   </p>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+              <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
                 <button
                   onClick={() => setShowAssignModal(false)}
-                  className="border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition font-medium"
+                  className="border border-gray-300 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition font-semibold text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAssignRoom}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-sm shadow-blue-200"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold transition shadow-sm text-sm"
                 >
                   Assign Room & Record Advance
                 </button>
