@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout"; // Adjust import path as needed
+import PatientVisitTabs from "./PatientVisitTabs"; // Make sure to adjust this path to where you saved the component!
 
 export default function PatientDetails() {
   const navigate = useNavigate();
@@ -87,8 +88,8 @@ export default function PatientDetails() {
     <Layout>
       <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto flex flex-col h-full min-h-screen">
         
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+        {/* Header - Matches PatientHistory perfectly */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8 min-h-[40px]">
           <div className="flex items-center gap-2 sm:gap-3 text-sm flex-wrap">
             <Link to="/patients" className="text-blue-600 font-medium cursor-pointer hover:underline transition-colors">
               Patients
@@ -127,22 +128,14 @@ export default function PatientDetails() {
           )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex w-full sm:w-auto mb-6 overflow-x-auto hide-scrollbar">
-          <button className={`flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2.5 font-medium text-sm whitespace-nowrap shadow-sm ${hasAdvancedAccess ? 'rounded-l-xl' : 'rounded-xl'}`}>
-            Current Visit
-          </button>
-          
-          {/* History Tab - Only visible to Manager/Senior Doctor */}
-          {hasAdvancedAccess && (
-            <button 
-              onClick={() => navigate(`/patient-history/${patientData.pid}`)} 
-              className="flex-1 sm:flex-none border border-l-0 border-gray-300 px-6 py-2.5 rounded-r-xl text-gray-700 text-sm whitespace-nowrap bg-white hover:bg-gray-50 transition-colors"
-            >
-              History (2)
-            </button>
-          )}
-        </div>
+        {/* --- Unified Tabs Component --- */}
+        {hasAdvancedAccess && (
+          <PatientVisitTabs 
+            pid={patientData.pid} 
+            historyCount={1} // In a real app, you'd pass the actual history array length here
+            activeTab="current" 
+          />
+        )}
 
         {/* Top Section (Grid) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch flex-1">
