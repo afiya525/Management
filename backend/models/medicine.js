@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 
 const medicineSchema = new mongoose.Schema({
@@ -61,4 +62,5 @@ medicineSchema.pre('save', async function (next) {
 });
 
 
-module.exports = mongoose.model("Medicine", medicineSchema);
+// module.exports = mongoose.model("Medicine", medicineSchema);
+export default mongoose.model("Medicine",medicineSchema )

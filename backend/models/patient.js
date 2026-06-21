@@ -1,4 +1,28 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
+
+
+const BillDetailsSchema = new mongoose.Schema({
+  billName: {
+    type: String,
+    required: [true, 'Bill item name is required'],
+    trim: true,
+  },
+  amount: {
+    type: Number,
+    required: [true, 'Bill item amount is required'],
+    default: 0,
+  },
+  status: {
+    type: String,
+    enum: ['paid', 'unpaid'],
+    required: [true, 'Bill item status is required'],
+    default: 'unpaid',
+  },
+},{ _id: false });
+
+
+
 
 const patientSchema = new mongoose.Schema({
   pid: {
@@ -54,11 +78,10 @@ const patientSchema = new mongoose.Schema({
     
   },
   billItems: {
-    type: map,
+    type: Map,
     of: BillDetailsSchema,
     default: {}
   }
-
 }, 
 {
     timestamps: true
@@ -95,24 +118,7 @@ patientSchema.pre('save', async function (next) {
 
 
 
-const BillDetailsSchema = new mongoose.Schema({
-  billName: {
-    type: String,
-    required: [true, 'Bill item name is required'],
-    trim: true,
-  },
-  amount: {
-    type: Number,
-    required: [true, 'Bill item amount is required'],
-    default: 0,
-  },
-  status: {
-    type: String,
-    enum: ['paid', 'unpaid'],
-    required: [true, 'Bill item status is required'],
-    default: 'unpaid',
-  },
-},{ _id: false });
 
 
-module.exports = mongoose.model("Patient", patientSchema);
+
+export default mongoose.model("Patient", patientSchema);

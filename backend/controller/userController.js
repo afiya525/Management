@@ -99,16 +99,20 @@ export const updateDocAttendece = async (req, res) => {
         const userId = req.params.id;
         const { attendance } = req.body;
         if (attendance=='active'){
-            const newAttendence='inactive'
+            var newAttendance = 'inactive';
         }
         else{
-            const newAttendence='active'
+            var newAttendance = 'active';
         }
-        const updatedAttendence= await user.findByIdAndUpdate(userId, newAttendence, {new: true});
-        if (!updatedAttendence){
+        const updatedAttendance = await user.findByIdAndUpdate(
+            userId,
+            { attendance: newAttendance },
+            { new: true }
+        );
+        if (!updatedAttendance){
             return res.status(404).json({ message: "User not found" });
         }
-        return res.status(200).json(updatedUser);
+        return res.status(200).json(updatedAttendance);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
