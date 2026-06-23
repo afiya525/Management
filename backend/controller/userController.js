@@ -1,136 +1,154 @@
 import user from "../models/user.js";
+import bcrypt from "bcryptjs";
 
-const DUPLICATE_FIELDS = ["username", "email", "pan", "adhaar"];
+const createUser = async (req, res) => {
+    try{
+        const {
+            name,
+            email,
+            mobile,
+            username,
+            password,
+            role,
+            specialization,
+            dob,
+            gender,
+            address,
+        } = req.body;
 
-async function findDuplicateUser(data, excludeId = null) {
-    const conditions = DUPLICATE_FIELDS
-        .filter((field) => data[field] !== undefined && data[field] !== null && data[field] !== "")
-        .map((field) => ({ [field]: data[field] }));
+        const existingUser = await UserActivation.findOne({
+            $or : [{email},{username}],
+        });
 
-    if (conditions.length === 0) {
-        return null;
-    }
-
-    const query = { $or: conditions };
-
-    if (excludeId) {
-        query._id = { $ne: excludeId };
-    }
-
-    return await user.findOne(query);
-}
-
-export const createUser = async (req, res) => {
-    try {
-        const { username, email, pan, adhaar } = req.body;
-        const duplicateUser = await findDuplicateUser({ username, email, pan, adhaar });
-
-        if (duplicateUser) {
+        if(existingUser) {
             return res.status(400).json({
-                message: "User with the same username, email, PAN, or Aadhaar already exists"
+                message: "User already exists",
             });
         }
 
-        const newUser = new user(req.body);
-        const savedUser = await newUser.save();
-        return res.status(201).json(savedUser);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        const hashedPassword = await bcrypt.hash(password,10);
+
+        const newUser = await user.create({
+            name,
+            email,
+            mobile,
+            username,
+            password: hashedPassword,
+            role,
+            specialization,
+            dob,
+            gender,
+            address,
+        });
+        res.status(201).json(newUser);
+    }
+    catch(error){
+        res.status(500).json({
+            message: error.message,
+        });
     }
 };
 
-export const getAllUsers = async (req, res) => {
-    try {
-        const users = await user.find();
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: "No users found" });
-        }
-        return res.status(200).json(users);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+const getAllUsers = async (req,res) => {
+    try{
+        const users = await user.find().select("-password");
+
+        res.json(users);
+    } catch(error) { 
+        res.status(500).json({
+            message:error.message,
+        });
     }
 };
 
-export const getUserById = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const foundUser = await user.findById(userId);
+const getUserById = async (req,res) =>{
+    try{
+        const user = await user.findById(req.params.id).select("-password");
 
-        if (!foundUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        return res.status(200).json(foundUser);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-export const updateUser = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const { username, email, pan, adhaar } = req.body;
-
-        const duplicateUser = await findDuplicateUser(
-            { username, email, pan, adhaar },
-            userId
-        );
-
-        if (duplicateUser) {
-            return res.status(400).json({
-                message: "Another user already has the same username, email, PAN, or Aadhaar"
+        if(!user){
+            return res.status(404).json ({
+                message : "User not found",
             });
         }
-
-        const updatedUser = await user.findByIdAndUpdate(userId, req.body, { new: true });
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        return res.status(200).json(updatedUser);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.json(user);
+    }
+    catch(error){
+        res.status(500).json ({
+            message : error.message,
+        });
     }
 };
 
-
-export const updateDocAttendece = async (req, res) => {
+const updateUser = async (req,res) => {
     try {
-        const userId = req.params.id;
-        const { attendance } = req.body;
-        if (attendance=='active'){
-            var newAttendance = 'inactive';
+        const updatedUser = await user.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new :true,
+            }
+        ).select("-password");
+
+        if(!updatedUser) {
+            return res.status(404).json ({
+                message :"User not found",
+            });
         }
-        else{
-            var newAttendance = 'active';
-        }
-        const updatedAttendance = await user.findByIdAndUpdate(
-            userId,
-            { attendance: newAttendance },
-            { new: true }
-        );
-        if (!updatedAttendance){
-            return res.status(404).json({ message: "User not found" });
-        }
-        return res.status(200).json(updatedAttendance);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.json(updatedUser);
+    }
+    catch(error){
+        res.status(500).json({
+            message:error.message,
+        });
     }
 };
 
-
-export const deleteUser = async (req, res) => {
+const toggleUserStatus = async (req,res) => {
     try {
-        const userId = req.params.id;
-        const deletedUser = await user.findByIdAndDelete(userId);
+        const user = await user.findById(req.params.id);
 
-        if (!deletedUser){
-            return res.status(404).json({ message: "User not found" });
+        if(!user) {
+            return res.status(404).json({
+                message: "User not found",
+            });
         }
-        return res.status(200).json({ message: "User deleted successfully" });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        user.status = user.status === "Active"
+        ? "Inactive"
+        : "Active";
+
+        await user.save();
+
+        res.json({
+            message : "Status Updated",
+            status:user.status,
+        });
+    }
+    catch(error){
+        res.status(500).json ({
+            message : error.message,
+        });
     }
 };
 
+const deleteUser = async (req,res) => {
+    try {
+        const user = await user.findById(req.params.id);
 
+        if(!user){
+            return res.status(404).json ({
+                message :"User not found",
+            });
+        }
+        await user.deleteOne();
+
+        res.json({
+            message:"User deleted",
+        });
+    } catch(error){
+        res.status(500).json({
+            message : error.message,
+        });
+    }
+};
+
+export {createUser,getAllUsers,getUserById,updateUser,toggleUserStatus,deleteUser,};

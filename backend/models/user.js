@@ -1,79 +1,70 @@
 import mongoose from "mongoose";
+ const userSchema = new mongoose.Schema(
+    {
+        name:{
+            type: String,
+            required: true,
+        },
 
-const userSchema = new mongoose.Schema({
-    fullname:{
-        type: String,
-        required: true,
-        trim: true
+        email :{
+            type: String,
+            required : true,
+            unique : true,
+        },
+
+        mobile : {
+            type: String,
+        },
+
+        specialization : {
+            type: String,
+        },
+
+        dob : {
+            type:Date,
+        },
+
+        gender : {
+            type : String,
+        },
+
+        address : {
+            type : String,
+        },
+
+        username: {
+            type:String,
+            required : true,
+            unique : true,
+        },
+
+        password : {
+            type:String,
+            required : true,
+        },
+
+        role : {
+            type: String,
+            enum: [
+                "manager",
+                "frontoffice",
+                "seniordoctor",
+                "juniordoctor",
+                "nurse",
+                "pharmacist",
+            ],
+
+            required : true,
+        },
+
+        status : {
+            type: String,
+            default : "Active",
+        },
     },
-    username: {
-        type: String, 
-        required: true, 
-        trim: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
-        select: false
-    },
-    email: {
-        type: String, 
-        required: true, 
-        unique: true, 
-        lowercase: true, 
-        trim: true
-    },
-    pan: {
-        type: String, 
-        required: true, 
-        unique: true, 
-        uppercase: true,
-        trim: true
-    },
-    dob:{
-        type: Date,
-        required: true
-    },
-    mobile:{
-        type: String,
-        required: true,
-        trim: true
-    },
-    adhaar:{
-        type: String,
-        required: true,
-        unique: true,
-        trim: true
-    },
-    role:{
-        type: String,
-        enum: ['manager', 'fos', 'seniordoctor', 'juniordoctor', 'nurse', 'pharmacist', 'labtechnician', 'receptionist'],
-        required: true
-    },
-    specialisation: {
-        type: String,
-        enum: ['Neurology', 'Orthopedics', 'Pediatrics', 'General medicine', 'Cardiology', 'Dermatology', 'Gynaecology', 'Ent', 'Ophthalmology', 'General Surgery' ],
-        trim: true,
-        // CONDITIONAL VALIDATION LOGIC:
-        required: [
-            function() { return this.role === 'seniordoctor'; }, 
-            'Specialisation is required for senior doctors'
-        ]
-    },
-    address:{
-        type: String,
-        required: true,
-        trim: true
-    },
-    gender:{
-        type: String,
-        enum: ['male', 'female', 'other'],
-        required: true
+    {
+        timestamps: true,
     }
+ );
 
-},{
-    timestamps: true
-});
-
-export default mongoose.model("User", userSchema);
+ export default mongoose.model("User",userSchema);
